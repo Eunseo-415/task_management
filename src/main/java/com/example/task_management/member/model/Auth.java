@@ -28,7 +28,6 @@ public class Auth {
                     .email(this.email)
                     .password(this.password)
                     .roles(this.roles)
-                    .regDt(LocalDateTime.now())
                     .build();
         }
     }

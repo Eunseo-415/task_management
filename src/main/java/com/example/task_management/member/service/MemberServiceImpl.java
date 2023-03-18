@@ -17,8 +17,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member register(Auth.Register member) {
-        boolean exist = memberRepository.existsByEmail(member.getEmail());
-        if(exist){
+        if(memberRepository.existsByEmail(member.getEmail())){
             throw new RuntimeException("이미 사용중인 이메일 입니다.");
         }
         member.setPassword(this.passwordEncoder.encode(member.getPassword()));
