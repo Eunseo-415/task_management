@@ -8,11 +8,14 @@ import com.example.task_management.task.dto.TaskInput;
 import com.example.task_management.task.repository.TaskRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -24,6 +27,7 @@ public class TaskServiceImpl implements TaskService {
     private final TokenProvider tokenProvider;
 
     @Override
+    @CacheEvict(key = "#token", value = "tasks")
     public Task addTask(TaskInput input, String token) {
         Task task = input.toEntity();
         String memberId = tokenProvider.getUserEmail(token);
@@ -41,6 +45,7 @@ public class TaskServiceImpl implements TaskService {
     //삭제된 정보로 취급하는게 맞을지 아니면 그냥 바로 디비에서 삭제 해버리면 될지 잘 모르겠습니다
     //TODO: 딜릿(디비 삭제 혹은 딜릿 필드 업데이트)
     @Override
+    @CacheEvict(key = "#token", value = "tasks")
     public String deleteTask(String taskId, String token) {
         String memberId = tokenProvider.getUserEmail(token);
         Task task = taskRepository.findByTaskIdAndMember_MemberId(taskId, memberId)
@@ -51,9 +56,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Page<Task> getAllTasks(Pageable pageable, String token) {
+    @Cacheable(key = "#token", value = "tasks")
+    public List<Task> getAllTasks(String token) {
         String memberId = tokenProvider.getUserEmail(token);
-        return this.taskRepository.findAllByDeletedDateTimeIsNullAndMember_MemberId(pageable,memberId);
+        return this.taskRepository.findAllByDeletedDateTimeIsNullAndMember_MemberId(memberId);
     }
 
     @Override
@@ -64,6 +70,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @CacheEvict(key = "#token", value = "tasks")
     public Task updateTask(String taskId, String token, TaskInput taskInput) {
         String memberId = tokenProvider.getUserEmail(token);
         Task task = this.taskRepository.findByTaskIdAndMember_MemberId(taskId, memberId)

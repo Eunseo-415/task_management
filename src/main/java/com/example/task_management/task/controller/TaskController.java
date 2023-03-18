@@ -11,6 +11,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/task")
@@ -21,8 +24,8 @@ public class TaskController {
 
     @GetMapping
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<?> getAllTask(final Pageable pageable, @RequestHeader String authentication){
-        Page<Task> tasks = this.taskService.getAllTasks(pageable, authentication.substring(TOKEN_PREFIX.length()));
+    public ResponseEntity<?> getAllTask(@RequestHeader String authentication){
+        List<Task> tasks = this.taskService.getAllTasks(authentication.substring(TOKEN_PREFIX.length()));
         return ResponseEntity.ok(tasks);
     }
 
