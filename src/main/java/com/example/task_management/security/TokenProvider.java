@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class TokenProvider {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put(KEY_ROLES, roles);
         Date now = new Date();
-        Date expiredDate = new Date(now.getTime()+TOKEN_EXPIRE_TIME);
+        Date expiredDate = new Date(Instant.now().toEpochMilli()+TOKEN_EXPIRE_TIME);
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)

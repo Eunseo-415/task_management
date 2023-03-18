@@ -1,5 +1,6 @@
 package com.example.task_management.member.entity;
 
+import com.example.task_management.task.entity.Task;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -13,6 +14,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Builder
@@ -27,6 +29,9 @@ public class Member implements UserDetails {
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String memberId;
+
+    @OneToMany(mappedBy="member")
+    private Set<Task> tasks;
 
     @Column(unique = true)
     private String email;
