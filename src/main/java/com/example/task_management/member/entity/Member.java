@@ -1,6 +1,7 @@
 package com.example.task_management.member.entity;
 
 import com.example.task_management.task.entity.Task;
+import com.example.task_management.team.TeamMember;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -32,6 +33,9 @@ public class Member implements UserDetails {
 
     @OneToMany(mappedBy="member")
     private Set<Task> tasks;
+
+    @OneToMany(mappedBy="member")
+    private Set<TeamMember> teams;
 
     @Column(unique = true)
     private String email;
