@@ -26,9 +26,9 @@ public class Auth {
             return Member.builder()
                     .name(this.name)
                     .email(this.email)
+                    .phone(this.phone)
                     .password(this.password)
                     .roles(this.roles)
-                    .regDt(LocalDateTime.now())
                     .build();
         }
     }

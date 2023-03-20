@@ -12,3 +12,8 @@ spring:
       ddl-auto: update
   jwt:
     secret: dGFzay1tYW5hZ2VtZW50LXNwcmluZy1ib290LXByb2plY3Qtand0LXNlY3JldGUta2V5Cg==
+
+  redis:
+    host: localhost
+    port: 6379
+
