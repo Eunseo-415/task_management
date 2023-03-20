@@ -17,3 +17,14 @@ spring:
     host: localhost
     port: 6379
 
+  mail:
+    port: 587
+    host: smtp.gmail.com
+    username: ieunseo415@gmail.com
+    password: smtppassword
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+
