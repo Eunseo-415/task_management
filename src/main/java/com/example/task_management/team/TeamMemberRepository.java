@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     Optional<TeamMember> findByMember_MemberIdAndTeamTeamId(String memberId, String teamId);
     Optional<TeamMember> findByMember_MemberIdAndInvitationCode(String memberId, String invitationCode);
+    boolean existsByMember_MemberIdAndTeamTeamId(String memberId, String teamId);
 }

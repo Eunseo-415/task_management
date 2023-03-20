@@ -27,7 +27,14 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/{taskId}")
+    @GetMapping("/team/{teamId}")
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<?> getAllTeamTask(@AuthenticationPrincipal Member member, @PathVariable String teamId){
+        List<Task> tasks = this.taskService.getAllTeamTasks(member, teamId);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @GetMapping("/{taskId}}")
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> getTaskById(@PathVariable String taskId, @AuthenticationPrincipal Member member){
         var result = this.taskService.getTaskById(taskId, member);
@@ -38,7 +45,14 @@ public class TaskController {
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> addTask(@RequestBody TaskInput taskInput, @AuthenticationPrincipal Member member){
         var result = this.taskService.addTask(taskInput, member);
-        return ResponseEntity.ok(result.toString());
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/add/{teamId}")
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<?> addTeamTask(@RequestBody TaskInput taskInput, @AuthenticationPrincipal Member member, @PathVariable String teamId){
+        var result = this.taskService.addTeamTask(taskInput, member, teamId);
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping({"/{taskId}"})

@@ -1,7 +1,10 @@
 package com.example.task_management.team;
 
 import com.example.task_management.member.entity.Member;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -24,12 +27,10 @@ public class TeamMember {
 
     @ManyToOne
     @JoinColumn(name = "team_id", nullable = false)
-    @JsonIgnore
     private Team team;
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
-    @JsonIgnore
     private Member member;
 
     private boolean isAdmin;
@@ -39,8 +40,12 @@ public class TeamMember {
     private boolean invitationAccepted;
 
     @CreatedDate
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdDateTime;
 
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime deletedDateTime;
 
 

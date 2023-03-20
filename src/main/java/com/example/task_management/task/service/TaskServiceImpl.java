@@ -1,11 +1,12 @@
 package com.example.task_management.task.service;
 
 import com.example.task_management.member.entity.Member;
-import com.example.task_management.member.repository.MemberRepository;
-import com.example.task_management.security.TokenProvider;
 import com.example.task_management.task.dto.TaskInput;
 import com.example.task_management.task.entity.Task;
 import com.example.task_management.task.repository.TaskRepository;
+import com.example.task_management.team.Team;
+import com.example.task_management.team.TeamMemberRepository;
+import com.example.task_management.team.TeamRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,8 +22,8 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
-    private final MemberRepository memberRepository;
-    private final TokenProvider tokenProvider;
+    private final TeamRepository teamRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
     @Override
     @CacheEvict(key = "#member.email", value = "tasks")
@@ -72,6 +73,31 @@ public class TaskServiceImpl implements TaskService {
         task.setDeadLineDateTime(taskInput.getDeadLineDateTime());
         task.setPriority(taskInput.getPriority());
         return this.taskRepository.save(task);
+    }
+
+    @Override
+    @Cacheable(key = "#teamId", value = "tasks")
+    public List<Task> getAllTeamTasks(Member member, String teamId) {
+        if (!this.teamMemberRepository.existsByMember_MemberIdAndTeamTeamId(member.getMemberId(), teamId)){
+            throw new RuntimeException("This member is not a team member");
+        }
+
+        return this.taskRepository.findAllByDeletedDateTimeIsNullAndTeamTeamId(teamId);
+    }
+
+    @Override
+    public Task addTeamTask(TaskInput taskInput, Member member, String teamId) {
+        if (!this.teamMemberRepository.existsByMember_MemberIdAndTeamTeamId(member.getMemberId(), teamId)){
+            throw new RuntimeException("This member is not a team member");
+        }
+        Team team = this.teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("Cannot find team: " + teamId));
+        Task task = taskInput.toEntity();
+        task.setMember(member);
+        task.setTeam(team);
+        this.taskRepository.save(task);
+        log.info("Task added by user: " + member.getName());
+        return task;
     }
 
 
