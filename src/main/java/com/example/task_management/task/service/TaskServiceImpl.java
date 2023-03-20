@@ -3,17 +3,15 @@ package com.example.task_management.task.service;
 import com.example.task_management.member.entity.Member;
 import com.example.task_management.member.repository.MemberRepository;
 import com.example.task_management.security.TokenProvider;
-import com.example.task_management.task.entity.Task;
 import com.example.task_management.task.dto.TaskInput;
+import com.example.task_management.task.entity.Task;
 import com.example.task_management.task.repository.TaskRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,12 +25,9 @@ public class TaskServiceImpl implements TaskService {
     private final TokenProvider tokenProvider;
 
     @Override
-    @CacheEvict(key = "#token", value = "tasks")
-    public Task addTask(TaskInput input, String token) {
+    @CacheEvict(key = "#member.email", value = "tasks")
+    public Task addTask(TaskInput input, Member member) {
         Task task = input.toEntity();
-        String memberId = tokenProvider.getUserEmail(token);
-        Member member = this.memberRepository.findByMemberId(memberId)
-                .orElseThrow(() ->new RuntimeException("Cannot find user: " + memberId));
         task.setMember(member);
         this.taskRepository.save(task);
         log.info("Task added by user: " + member.getName());
@@ -45,10 +40,9 @@ public class TaskServiceImpl implements TaskService {
     //삭제된 정보로 취급하는게 맞을지 아니면 그냥 바로 디비에서 삭제 해버리면 될지 잘 모르겠습니다
     //TODO: 딜릿(디비 삭제 혹은 딜릿 필드 업데이트)
     @Override
-    @CacheEvict(key = "#token", value = "tasks")
-    public String deleteTask(String taskId, String token) {
-        String memberId = tokenProvider.getUserEmail(token);
-        Task task = taskRepository.findByTaskIdAndMember_MemberId(taskId, memberId)
+    @CacheEvict(key = "#member.email", value = "tasks")
+    public String deleteTask(String taskId,  Member member) {
+        Task task = taskRepository.findByTaskIdAndMember_MemberId(taskId, member.getMemberId())
                         .orElseThrow(() -> new RuntimeException("Cannot find task: " + taskId));
         task.setDeletedDateTime(LocalDateTime.now());
         taskRepository.save(task);
@@ -56,24 +50,21 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @Cacheable(key = "#token", value = "tasks")
-    public List<Task> getAllTasks(String token) {
-        String memberId = tokenProvider.getUserEmail(token);
-        return this.taskRepository.findAllByDeletedDateTimeIsNullAndMember_MemberId(memberId);
+    @Cacheable(key = "#member.email", value = "tasks")
+    public List<Task> getAllTasks(Member member) {
+        return this.taskRepository.findAllByDeletedDateTimeIsNullAndMember_MemberId(member.getMemberId());
     }
 
     @Override
-    public Task getTaskById(String taskId, String token) {
-        String memberId = tokenProvider.getUserEmail(token);
-        return this.taskRepository.findByTaskIdAndMember_MemberId(taskId, memberId)
+    public Task getTaskById(String taskId, Member member) {
+        return this.taskRepository.findByTaskIdAndMember_MemberId(taskId, member.getMemberId())
                 .orElseThrow(() -> new RuntimeException("Cannot find task: " + taskId));
     }
 
     @Override
-    @CacheEvict(key = "#token", value = "tasks")
-    public Task updateTask(String taskId, String token, TaskInput taskInput) {
-        String memberId = tokenProvider.getUserEmail(token);
-        Task task = this.taskRepository.findByTaskIdAndMember_MemberId(taskId, memberId)
+    @CacheEvict(key = "#member.email", value = "tasks")
+    public Task updateTask(String taskId, Member member, TaskInput taskInput) {
+        Task task = this.taskRepository.findByTaskIdAndMember_MemberId(taskId, member.getMemberId())
                 .orElseThrow(() -> new RuntimeException("Cannot find task: " + taskId));
         task.setFinished(taskInput.isFinished());
         task.setTitle(taskInput.getTitle());
