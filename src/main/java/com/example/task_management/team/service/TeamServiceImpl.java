@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -43,8 +44,15 @@ public class TeamServiceImpl implements TeamService {
         if (!sender.isAdmin()){
             throw new RuntimeException("Only team admin can invite");
         }
+        if(mail.equals(sender.getMember().getEmail())){
+            throw new RuntimeException("Cannot invite oneself.");
+        }
         Member sendTo = this.memberRepository.findByEmail(mail)
                 .orElseThrow(() ->new RuntimeException("Mail owner is not user: " + mail));
+        Optional<TeamMember> sendToMember = this.teamMemberRepository.findByMember_MemberIdAndTeamTeamId(sendTo.getMemberId(), teamId);
+        if(sendToMember.isPresent() && sendToMember.get().getInvitationCode() != null){
+            throw new RuntimeException("Already sent invitation.");
+        }
         Team team = this.teamRepository.findById(teamId)
                 .orElseThrow(() ->new RuntimeException("Team is not found: " + teamId));
         String invitationCode = UUID.randomUUID().toString();

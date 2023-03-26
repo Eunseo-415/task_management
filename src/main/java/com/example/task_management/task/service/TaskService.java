@@ -19,4 +19,8 @@ public interface TaskService {
     List<TaskDto.TaskResponse> getAllTeamTasks(Member member, String teamID);
 
     TaskDto.TaskResponse addTeamTask(TaskDto.TaskRequest request, Member member, String teamId);
+
+    String deleteTeamTask(String teamId, String taskId, Member member);
+
+    TaskDto.TaskResponse updateTeamTask(String teamId, String taskId, Member member, TaskDto.TaskRequest request);
 }
