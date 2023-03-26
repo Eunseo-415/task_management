@@ -1,21 +1,22 @@
 package com.example.task_management.task.service;
 
-import com.example.task_management.task.entity.Task;
-import com.example.task_management.task.dto.TaskInput;
-import org.springframework.data.domain.Page;
-
-import org.springframework.data.domain.Pageable;
+import com.example.task_management.member.entity.Member;
+import com.example.task_management.task.dto.TaskDto;
 
 import java.util.List;
 
 public interface TaskService {
-    Task addTask(TaskInput input, String token);
+    TaskDto.TaskResponse addTask(TaskDto.TaskRequest input, Member member);
 
-    String deleteTask(String taskId, String token);
+    String deleteTask(String taskId,  Member member);
 
-    List<Task> getAllTasks(String token);
+    List<TaskDto.TaskResponse> getAllTasks(Member member);
 
-    Task getTaskById(String taskId, String token);
+    TaskDto.TaskResponse getTaskById(String taskId, Member member);
 
-    Task updateTask(String taskId, String token, TaskInput taskInput);
+    TaskDto.TaskResponse updateTask(String taskId, Member member, TaskDto.TaskRequest taskRequest);
+
+    List<TaskDto.TaskResponse> getAllTeamTasks(Member member, String teamID);
+
+    TaskDto.TaskResponse addTeamTask(TaskDto.TaskRequest request, Member member, String teamId);
 }
