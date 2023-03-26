@@ -2,7 +2,6 @@ package com.example.task_management;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -16,16 +15,7 @@ import javax.mail.internet.MimeMessage;
 public class MailComponents {
     private final JavaMailSender javaMailSender;
 
-    public void sendMailTest(){
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo("eumseo@icloud.com");
-        msg.setSubject("test");
-        msg.setText("test text");
-        javaMailSender.send(msg);
-    }
-
-    public boolean sendMail(String mail, String subject, String text){
-        boolean result = false;
+    public void sendMail(String mail, String subject, String text){
         MimeMessagePreparator msg = new MimeMessagePreparator() {
             @Override
             public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -35,12 +25,6 @@ public class MailComponents {
                 helper.setText(text);
             }
         };
-        try {
-            javaMailSender.send(msg);
-            result = true;
-        } catch (Exception e){
-            log.info(e.getMessage());
-        }
-        return result;
+        javaMailSender.send(msg);
     }
 }

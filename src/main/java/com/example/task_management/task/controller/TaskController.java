@@ -2,8 +2,7 @@ package com.example.task_management.task.controller;
 
 
 import com.example.task_management.member.entity.Member;
-import com.example.task_management.task.dto.TaskInput;
-import com.example.task_management.task.entity.Task;
+import com.example.task_management.task.dto.TaskDto;
 import com.example.task_management.task.service.TaskService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,35 +22,35 @@ public class TaskController {
     @GetMapping
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> getAllTask(@AuthenticationPrincipal Member member){
-        List<Task> tasks = this.taskService.getAllTasks(member);
+        List<TaskDto.TaskResponse> tasks = this.taskService.getAllTasks(member);
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/team/{teamId}")
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> getAllTeamTask(@AuthenticationPrincipal Member member, @PathVariable String teamId){
-        List<Task> tasks = this.taskService.getAllTeamTasks(member, teamId);
+        List<TaskDto.TaskResponse> tasks = this.taskService.getAllTeamTasks(member, teamId);
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/{taskId}}")
+    @GetMapping("/{taskId}")
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> getTaskById(@PathVariable String taskId, @AuthenticationPrincipal Member member){
-        var result = this.taskService.getTaskById(taskId, member);
+        TaskDto.TaskResponse result = this.taskService.getTaskById(taskId, member);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<?> addTask(@RequestBody TaskInput taskInput, @AuthenticationPrincipal Member member){
-        var result = this.taskService.addTask(taskInput, member);
+    public ResponseEntity<?> addTask(@RequestBody TaskDto.TaskRequest request, @AuthenticationPrincipal Member member){
+        TaskDto.TaskResponse result = this.taskService.addTask(request, member);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/add/{teamId}")
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<?> addTeamTask(@RequestBody TaskInput taskInput, @AuthenticationPrincipal Member member, @PathVariable String teamId){
-        var result = this.taskService.addTeamTask(taskInput, member, teamId);
+    public ResponseEntity<?> addTeamTask(@RequestBody TaskDto.TaskRequest request, @AuthenticationPrincipal Member member, @PathVariable String teamId){
+        TaskDto.TaskResponse result = this.taskService.addTeamTask(request, member, teamId);
         return ResponseEntity.ok(result);
     }
 
@@ -64,9 +63,9 @@ public class TaskController {
 
     @PutMapping("/update/{taskId}")
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<?> updateTask(@PathVariable String taskId, @RequestBody TaskInput taskInput,
+    public ResponseEntity<?> updateTask(@PathVariable String taskId, @RequestBody TaskDto.TaskRequest request,
                                         @AuthenticationPrincipal Member member){
-        var result = this.taskService.updateTask(taskId, member, taskInput );
+        TaskDto.TaskResponse result = this.taskService.updateTask(taskId, member, request);
         return ResponseEntity.ok(result);
     }
 }

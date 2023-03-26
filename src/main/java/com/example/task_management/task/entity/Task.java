@@ -1,7 +1,7 @@
 package com.example.task_management.task.entity;
 
 import com.example.task_management.member.entity.Member;
-import com.example.task_management.team.Team;
+import com.example.task_management.team.entity.Team;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

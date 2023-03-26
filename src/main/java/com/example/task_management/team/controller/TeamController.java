@@ -1,8 +1,11 @@
-package com.example.task_management.team;
+package com.example.task_management.team.controller;
 
 import com.example.task_management.MailComponents;
 import com.example.task_management.member.entity.Member;
 import com.example.task_management.task.service.TaskService;
+import com.example.task_management.team.dto.TeamDto;
+import com.example.task_management.team.service.TeamMemberService;
+import com.example.task_management.team.service.TeamService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,9 +25,8 @@ public class TeamController {
 
     @PostMapping
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<?> createTeam(@AuthenticationPrincipal Member member, @RequestBody TeamInput teamInput){
-        var result = teamService.createTeam(member, teamInput);
-        return ResponseEntity.ok(result.toString());
+    public ResponseEntity<?> createTeam(@AuthenticationPrincipal Member member, @RequestBody TeamDto.TeamRequest teamInput){
+        return ResponseEntity.ok(teamService.createTeam(member, teamInput));
     }
 
     @PostMapping("/{teamId}")
@@ -40,7 +42,7 @@ public class TeamController {
     @GetMapping("/invitation/{invitationCode}")
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> invitationActivate(@AuthenticationPrincipal Member member, @PathVariable String invitationCode){
-        return ResponseEntity.ok(this.teamMemberService.invitationAccept(member, invitationCode).toString());
+        return ResponseEntity.ok(this.teamMemberService.invitationAccept(member, invitationCode));
     }
 
 }

@@ -1,21 +1,20 @@
-package com.example.task_management.team;
+package com.example.task_management.team.service;
 
 import com.example.task_management.member.entity.Member;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import com.example.task_management.team.dto.TeamMemberDto;
+import com.example.task_management.team.entity.TeamMember;
+import com.example.task_management.team.repository.TeamMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 @Service
 @RequiredArgsConstructor
-public class TeamMemberServiceImpl implements TeamMemberService{
+public class TeamMemberServiceImpl implements TeamMemberService {
 
     private final TeamMemberRepository teamMemberRepository;
 
     @Override
-    public TeamMember invitationAccept(Member member, String invitationCode) {
+    public TeamMemberDto invitationAccept(Member member, String invitationCode) {
         TeamMember teamMember = teamMemberRepository.findByMember_MemberIdAndInvitationCode(member.getMemberId(), invitationCode)
                 .orElseThrow(() -> new RuntimeException("No invitation sent"));
 
@@ -24,6 +23,6 @@ public class TeamMemberServiceImpl implements TeamMemberService{
         }
         teamMember.setInvitationAccepted(true);
         teamMemberRepository.save(teamMember);
-        return teamMember;
+        return new TeamMemberDto(teamMember);
     }
 }

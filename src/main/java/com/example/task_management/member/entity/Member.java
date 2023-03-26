@@ -1,7 +1,7 @@
 package com.example.task_management.member.entity;
 
 import com.example.task_management.task.entity.Task;
-import com.example.task_management.team.TeamMember;
+import com.example.task_management.team.entity.TeamMember;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -59,8 +59,6 @@ public class Member implements UserDetails {
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
-
-
 
 
     @Override

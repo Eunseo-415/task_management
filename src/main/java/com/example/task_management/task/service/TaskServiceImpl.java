@@ -1,12 +1,12 @@
 package com.example.task_management.task.service;
 
 import com.example.task_management.member.entity.Member;
-import com.example.task_management.task.dto.TaskInput;
+import com.example.task_management.task.dto.TaskDto;
 import com.example.task_management.task.entity.Task;
 import com.example.task_management.task.repository.TaskRepository;
-import com.example.task_management.team.Team;
-import com.example.task_management.team.TeamMemberRepository;
-import com.example.task_management.team.TeamRepository;
+import com.example.task_management.team.entity.Team;
+import com.example.task_management.team.repository.TeamMemberRepository;
+import com.example.task_management.team.repository.TeamRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,12 +28,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @CacheEvict(key = "#member.email", value = "tasks")
-    public Task addTask(TaskInput input, Member member) {
+    public TaskDto.TaskResponse addTask(TaskDto.TaskRequest input, Member member) {
         Task task = input.toEntity();
         task.setMember(member);
         this.taskRepository.save(task);
         log.info("Task added by user: " + member.getName());
-        return task;
+        return new TaskDto.TaskResponse(task);
     }
 
     //task 엔티티에 erd 진행시 delete date time 정보가 있으면 추후 유저의 행동분석에 도움이 된다고 하신걸 보면
@@ -52,52 +53,55 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Cacheable(key = "#member.email", value = "tasks")
-    public List<Task> getAllTasks(Member member) {
-        return this.taskRepository.findAllByDeletedDateTimeIsNullAndMember_MemberId(member.getMemberId());
+    public List<TaskDto.TaskResponse> getAllTasks(Member member) {
+        return this.taskRepository.findAllByDeletedDateTimeIsNullAndMember_MemberId(member.getMemberId())
+                .stream().map(TaskDto.TaskResponse::new).collect(Collectors.toList());
     }
 
     @Override
-    public Task getTaskById(String taskId, Member member) {
-        return this.taskRepository.findByTaskIdAndMember_MemberId(taskId, member.getMemberId())
+    public TaskDto.TaskResponse getTaskById(String taskId, Member member) {
+        Task task = this.taskRepository.findByTaskIdAndMember_MemberId(taskId, member.getMemberId())
                 .orElseThrow(() -> new RuntimeException("Cannot find task: " + taskId));
+        return new TaskDto.TaskResponse(task);
     }
 
     @Override
     @CacheEvict(key = "#member.email", value = "tasks")
-    public Task updateTask(String taskId, Member member, TaskInput taskInput) {
+    public TaskDto.TaskResponse updateTask(String taskId, Member member, TaskDto.TaskRequest request) {
         Task task = this.taskRepository.findByTaskIdAndMember_MemberId(taskId, member.getMemberId())
                 .orElseThrow(() -> new RuntimeException("Cannot find task: " + taskId));
-        task.setFinished(taskInput.isFinished());
-        task.setTitle(taskInput.getTitle());
-        task.setDescription(taskInput.getDescription());
-        task.setDeadLineDateTime(taskInput.getDeadLineDateTime());
-        task.setPriority(taskInput.getPriority());
-        return this.taskRepository.save(task);
+        task.setFinished(request.isFinished());
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setDeadLineDateTime(request.getDeadLineDateTime());
+        task.setPriority(request.getPriority());
+        return new TaskDto.TaskResponse(this.taskRepository.save(task));
     }
 
     @Override
     @Cacheable(key = "#teamId", value = "tasks")
-    public List<Task> getAllTeamTasks(Member member, String teamId) {
+    public List<TaskDto.TaskResponse> getAllTeamTasks(Member member, String teamId) {
         if (!this.teamMemberRepository.existsByMember_MemberIdAndTeamTeamId(member.getMemberId(), teamId)){
             throw new RuntimeException("This member is not a team member");
         }
-
-        return this.taskRepository.findAllByDeletedDateTimeIsNullAndTeamTeamId(teamId);
+        return this.taskRepository.findAllByDeletedDateTimeIsNullAndTeamTeamId(teamId)
+                .stream().map(TaskDto.TaskResponse::new).collect(Collectors.toList());
     }
 
     @Override
-    public Task addTeamTask(TaskInput taskInput, Member member, String teamId) {
+    @CacheEvict(key = "#teamId", value = "tasks")
+    public TaskDto.TaskResponse addTeamTask(TaskDto.TaskRequest request, Member member, String teamId) {
         if (!this.teamMemberRepository.existsByMember_MemberIdAndTeamTeamId(member.getMemberId(), teamId)){
             throw new RuntimeException("This member is not a team member");
         }
         Team team = this.teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Cannot find team: " + teamId));
-        Task task = taskInput.toEntity();
+        Task task = request.toEntity();
         task.setMember(member);
         task.setTeam(team);
         this.taskRepository.save(task);
         log.info("Task added by user: " + member.getName());
-        return task;
+        return new TaskDto.TaskResponse(task);
     }
 
 

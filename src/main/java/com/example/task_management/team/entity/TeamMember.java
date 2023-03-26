@@ -1,35 +1,43 @@
-package com.example.task_management.team;
+package com.example.task_management.team.entity;
 
-import com.example.task_management.task.entity.Task;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.example.task_management.member.entity.Member;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Set;
 
+@Entity
 @Builder
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
-@Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Team {
-
+public class TeamMember {
     @Id
-    @GeneratedValue(generator = "system-uuid")
-    @GenericGenerator(name = "system-uuid", strategy = "uuid")
-    private String teamId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long teamMemberId;
 
-    private String teamName;
+    @ManyToOne
+    @JoinColumn(name = "team_id", nullable = false)
+    private Team team;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
+    private boolean isAdmin;
+
+    private String invitationCode;
+
+    private boolean invitationAccepted;
 
     @CreatedDate
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -39,13 +47,5 @@ public class Team {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime deletedDateTime;
-
-    @OneToMany(mappedBy = "team")
-    @JsonIgnore
-    private Set<TeamMember> members;
-
-    @OneToMany(mappedBy = "team")
-    @JsonIgnore
-    private Set<Task> tasks;
 
 }
