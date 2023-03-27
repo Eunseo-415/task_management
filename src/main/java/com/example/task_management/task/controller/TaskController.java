@@ -85,8 +85,9 @@ public class TaskController {
     @PreAuthorize("hasRole('MEMBER')")
     @TeamLock
     public ResponseEntity<?> updateTeamTask(@PathVariable String teamId, @PathVariable String taskId, @RequestBody TaskDto.TaskRequest request,
-                                        @AuthenticationPrincipal Member member){
+                                        @AuthenticationPrincipal Member member) throws InterruptedException {
         TaskDto.TaskResponse result = this.taskService.updateTeamTask(teamId,taskId, member, request);
+        Thread.sleep(5000L);
         return ResponseEntity.ok(result);
     }
 }
