@@ -6,6 +6,7 @@ Spring + Jpa + mail + security, JWT, Redis, AWS, Docker
 
 레디스를 이용해 동시성 제어와 캐싱을 구현했습니다.
 Docker 와 AWS(EC2/RDS)를 이용해 배포했습니다.
+
 Swagger UI를 적용했습니다.
 
 배포 링크: ec2-52-63-127-184.ap-southeast-2.compute.amazonaws.com
