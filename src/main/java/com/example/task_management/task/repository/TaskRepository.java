@@ -12,4 +12,5 @@ public interface TaskRepository extends JpaRepository<Task, String> {
     List<Task> findAllByDeletedDateTimeIsNullAndMember_MemberId(String memberId);
     Optional<Task> findByTaskIdAndMember_MemberId(String taskId, String memberId);
     List<Task> findAllByDeletedDateTimeIsNullAndTeamTeamId(String teamId);
+    Optional<Task> findByTaskIdAndTeamTeamId(String taskId, String teamId);
 }

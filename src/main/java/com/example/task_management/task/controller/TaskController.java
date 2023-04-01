@@ -1,6 +1,7 @@
 package com.example.task_management.task.controller;
 
 
+import com.example.task_management.aop.TeamLock;
 import com.example.task_management.member.entity.Member;
 import com.example.task_management.task.dto.TaskDto;
 import com.example.task_management.task.service.TaskService;
@@ -26,13 +27,6 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/team/{teamId}")
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<?> getAllTeamTask(@AuthenticationPrincipal Member member, @PathVariable String teamId){
-        List<TaskDto.TaskResponse> tasks = this.taskService.getAllTeamTasks(member, teamId);
-        return ResponseEntity.ok(tasks);
-    }
-
     @GetMapping("/{taskId}")
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> getTaskById(@PathVariable String taskId, @AuthenticationPrincipal Member member){
@@ -44,13 +38,6 @@ public class TaskController {
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> addTask(@RequestBody TaskDto.TaskRequest request, @AuthenticationPrincipal Member member){
         TaskDto.TaskResponse result = this.taskService.addTask(request, member);
-        return ResponseEntity.ok(result);
-    }
-
-    @PostMapping("/add/{teamId}")
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<?> addTeamTask(@RequestBody TaskDto.TaskRequest request, @AuthenticationPrincipal Member member, @PathVariable String teamId){
-        TaskDto.TaskResponse result = this.taskService.addTeamTask(request, member, teamId);
         return ResponseEntity.ok(result);
     }
 
@@ -66,6 +53,41 @@ public class TaskController {
     public ResponseEntity<?> updateTask(@PathVariable String taskId, @RequestBody TaskDto.TaskRequest request,
                                         @AuthenticationPrincipal Member member){
         TaskDto.TaskResponse result = this.taskService.updateTask(taskId, member, request);
+        return ResponseEntity.ok(result);
+    }
+    @GetMapping("/team/{teamId}")
+    @PreAuthorize("hasRole('MEMBER')")
+    @TeamLock
+    public ResponseEntity<?> getAllTeamTask(@AuthenticationPrincipal Member member, @PathVariable String teamId){
+        List<TaskDto.TaskResponse> tasks = this.taskService.getAllTeamTasks(member, teamId);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @PostMapping("/add/{teamId}")
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<?> addTeamTask(@RequestBody TaskDto.TaskRequest request, @AuthenticationPrincipal Member member,
+                                         @PathVariable String teamId){
+        TaskDto.TaskResponse result = this.taskService.addTeamTask(request, member, teamId);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{teamId}/{taskId}")
+    @PreAuthorize("hasRole('MEMBER')")
+    @TeamLock
+    public ResponseEntity<?> deleteTeamTask(@AuthenticationPrincipal Member member,
+                                            @PathVariable String teamId, @PathVariable String taskId){
+        String result = this.taskService.deleteTeamTask(teamId, taskId, member);
+        return ResponseEntity.ok(result);
+    }
+
+
+    @PutMapping("/update/{teamId}/{taskId}")
+    @PreAuthorize("hasRole('MEMBER')")
+    @TeamLock
+    public ResponseEntity<?> updateTeamTask(@PathVariable String teamId, @PathVariable String taskId, @RequestBody TaskDto.TaskRequest request,
+                                        @AuthenticationPrincipal Member member) throws InterruptedException {
+        TaskDto.TaskResponse result = this.taskService.updateTeamTask(teamId,taskId, member, request);
+        Thread.sleep(5000L);
         return ResponseEntity.ok(result);
     }
 }
